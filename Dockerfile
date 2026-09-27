@@ -1,11 +1,20 @@
 # Stage 1: Get modern MongoDB binaries
 FROM mongo:7.0 AS mongo_bin
 
-# Stage 2: Target runtime container layer
-FROM node:20-alpine
+# Stage 2: Target runtime container layer using Debian-slim (fully compatible with MongoDB binaries and libcurl)
+FROM node:20-slim
 
-# Install system dependencies needed to execute database engine runtimes on Alpine
-RUN apk add --no-cache libstdc++ gcompat icu-libs wget
+# Install system dependencies including curl and wget required by MongoDB and setup
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget \
+    curl \
+    ca-certificates \
+    libcurl4 \
+    libgssapi-krb5-2 \
+    libldap-2.5-0 \
+    libsasl2-2 \
+    libsnmp40 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy MongoDB binaries from the first stage securely
 COPY --from=mongo_bin /usr/bin/mongod /usr/bin/mongod
@@ -13,7 +22,7 @@ COPY --from=mongo_bin /usr/bin/mongod /usr/bin/mongod
 # Establish working directory tree framework
 WORKDIR /usr/src/app
 
-# Download the server script directly from your GitHub repository with the correct raw URL
+# Download the server script directly from your GitHub repository
 RUN wget https://raw.githubusercontent.com/hhj061540-lang/bookish-dollop/refs/heads/main/server.js -O server.js
 
 # Initialize package.json and install explicitly compatible versions for Mongoose/Express/Dotenv
