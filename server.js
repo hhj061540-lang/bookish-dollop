@@ -218,4 +218,4 @@ app.delete('/api/cards/:id', authenticateKey, async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log('🚀 Automated VCC Engine online on port \${PORT}'));
+app.listen(PORT, () => console.log('🚀 Automated VCC Engine online on port ${PORT}'));
